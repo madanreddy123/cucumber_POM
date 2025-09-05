@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class SeleniumCommentGeneratorByReference {
+public class SeleniumCommentGeneratorByReferenceFiltered {
 
     public static void updateComments(String filePath) throws IOException {
         File file = new File(filePath);
@@ -39,34 +39,31 @@ public class SeleniumCommentGeneratorByReference {
         for (MethodCallExpr call : method.findAll(MethodCallExpr.class)) {
             String methodCall = call.getNameAsString().toLowerCase();
 
-            // Special case: driver.get(url)
-            if (methodCall.equals("get") && call.getScope().isPresent() &&
-                    call.getScope().get().toString().equals("driver")) {
-                actions.add("navigates to the specified URL");
-                continue;
-            }
-
-            // Determine action
+            // Determine action based on method name
             if (methodCall.contains("click")) actions.add("clicks on");
             else if (methodCall.contains("clear")) actions.add("clears");
             else if (methodCall.contains("sendkeys") || methodCall.contains("type") || methodCall.contains("settext"))
                 actions.add("enters text into");
             else if (methodCall.contains("select")) actions.add("selects a value from");
-            else if (methodCall.contains("wait")) actions.add("waits for");
+            else if (methodCall.contains("waitfor") || methodCall.contains("wait")) actions.add("waits for");
             else if (methodCall.contains("movetoelement")) actions.add("moves to");
-            else if (methodCall.contains("doubleclick")) actions.add("double-clicks on");
-            else if (methodCall.contains("contextclick")) actions.add("right-clicks on");
 
-            // Add only reference variable names (exclude literals)
+            // Collect only variable references (By locators or WebElements)
             for (Expression arg : call.getArguments()) {
-                if (arg.isNameExpr()) { // Only include variables, not values
-                    elementNames.add(arg.asNameExpr().getNameAsString());
+                if (arg.isNameExpr()) {
+                    String varName = arg.asNameExpr().getNameAsString();
+                    if (!varName.equals("driver") && !varName.equals("actions")) {
+                        elementNames.add(varName);
+                    }
                 }
             }
 
             // Also include the scope if it is a variable (like element.click())
             if (call.getScope().isPresent() && call.getScope().get() instanceof NameExpr) {
-                elementNames.add(((NameExpr) call.getScope().get()).getNameAsString());
+                String varName = ((NameExpr) call.getScope().get()).getNameAsString();
+                if (!varName.equals("driver") && !varName.equals("actions")) {
+                    elementNames.add(varName);
+                }
             }
         }
 
@@ -99,7 +96,7 @@ public class SeleniumCommentGeneratorByReference {
         String elementText = String.join(", ", elementNames);
 
         String sentence;
-        if (actionText.toString().contains("into") || actionText.toString().contains("on") || actionText.toString().contains("URL")) {
+        if (actionText.toString().contains("into") || actionText.toString().contains("on")) {
             sentence = "This method " + actionText.toString() + " " + elementText + ".";
         } else {
             sentence = "This method " + actionText.toString() + " the " + elementText + ".";
@@ -133,6 +130,6 @@ public class SeleniumCommentGeneratorByReference {
     public static void main(String[] args) throws IOException {
         String filePath = "src/main/java/com/example/MySeleniumClass.java";
         updateComments(filePath);
-        System.out.println("Selenium Javadoc comments updated using reference variables!");
+        System.out.println("Selenium Javadoc comments updated using By locator references only!");
     }
 }
