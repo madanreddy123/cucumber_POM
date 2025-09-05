@@ -53,7 +53,7 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
             else if (methodCall.contains("waitfor") || methodCall.contains("wait")) actions.add("waits for");
             else if (methodCall.contains("movetoelement")) actions.add("moves to");
 
-            // Collect only variable references that are not in the ignore list
+            // Collect variable references from arguments, excluding ignored variables
             for (Expression arg : call.getArguments()) {
                 if (arg.isNameExpr()) {
                     String varName = arg.asNameExpr().getNameAsString();
@@ -63,7 +63,7 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
                 }
             }
 
-            // Also include the scope if it is a variable and not in ignore list
+            // Include scope if it’s a variable and not in ignore list
             if (call.getScope().isPresent() && call.getScope().get() instanceof NameExpr) {
                 String varName = ((NameExpr) call.getScope().get()).getNameAsString();
                 if (!IGNORE_VARIABLES.contains(varName)) {
@@ -72,18 +72,19 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
             }
         }
 
-        // Fallback to method name if no element detected
+        // If no elements are detected, try to infer from method name
         if (elementNames.isEmpty()) {
             elementNames.add(extractElementName(method.getNameAsString()));
         }
 
-        // Fallback on action from method name if empty
+        // If no actions are detected, infer from method name
         if (actions.isEmpty()) {
             String lowerName = method.getNameAsString().toLowerCase();
             if (lowerName.contains("click")) actions.add("clicks on");
             else if (lowerName.contains("enter") || lowerName.contains("type")) actions.add("enters text into");
             else if (lowerName.contains("select")) actions.add("selects a value from");
             else if (lowerName.contains("check") || lowerName.contains("validate")) actions.add("validates");
+            else if (lowerName.contains("wait")) actions.add("waits for");
             else actions.add("performs an action on");
         }
 
@@ -133,7 +134,7 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
     }
 
     public static void main(String[] args) throws IOException {
-        String filePath = "src/main/java/com/example/MySeleniumClass.java";
+        String filePath = "src/main/java/LoginPage.java"; // Target file path
         updateComments(filePath);
         System.out.println("Selenium Javadoc comments updated using filtered element references!");
     }
