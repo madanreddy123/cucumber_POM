@@ -124,6 +124,7 @@ public class ElementCommentUpdater {
         return elementName.isEmpty() ? "element" : (elementName.endsWith("s") ? elementName : elementName);
     }
 
+
     /**
      * Helper method to check if a word is a preposition or conditional term
      */
