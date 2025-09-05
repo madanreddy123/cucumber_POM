@@ -68,15 +68,6 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
             else if (methodCall.contains("select")) actions.add("selects a value from");
             else if (methodCall.contains("waitfor") || methodCall.contains("wait")) actions.add("waits for");
             else if (methodCall.contains("movetoelement")) actions.add("moves to");
-            else if (methodCall.contains("get") && call.getScope().isPresent() &&
-                    call.getScope().get().toString().equalsIgnoreCase("driver")) {
-                actions.add("launches");
-                if (call.getArguments().size() > 0 && call.getArgument(0).isStringLiteralExpr()) {
-                    elementNames.add("URL: " + call.getArgument(0).asStringLiteralExpr().asString());
-                } else {
-                    elementNames.add("URL");
-                }
-            }
 
             // Collect By reference names used in method calls
             for (Expression arg : call.getArguments()) {
@@ -114,7 +105,6 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
             else if (lowerName.contains("select")) actions.add("selects a value from");
             else if (lowerName.contains("check") || lowerName.contains("validate")) actions.add("validates");
             else if (lowerName.contains("wait")) actions.add("waits for");
-            else if (lowerName.contains("launch")) actions.add("launches");
             else actions.add("performs an action on");
         }
 
@@ -149,7 +139,7 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
                 .toLowerCase().split("\\s+");
         Set<String> actionWords = Set.of(
                 "click", "clear", "enter", "type", "sendkeys", "select",
-                "wait", "get", "set", "move", "double", "context", "check", "validate", "login", "launch"
+                "wait", "get", "set", "move", "double", "context", "check", "validate", "login"
         );
         Set<String> ignoredWords = Set.of("on", "the", "and", "into", "from", "for", "element", "field", "with");
 
