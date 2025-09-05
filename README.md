@@ -4,6 +4,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -11,7 +12,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class SeleniumCommentGeneratorByLocator {
+public class SeleniumCommentGeneratorByReference {
 
     public static void updateComments(String filePath) throws IOException {
         File file = new File(filePath);
@@ -56,13 +57,20 @@ public class SeleniumCommentGeneratorByLocator {
             else if (methodCall.contains("doubleclick")) actions.add("double-clicks on");
             else if (methodCall.contains("contextclick")) actions.add("right-clicks on");
 
-            // Determine element from argument
+            // Add only reference variable names (exclude literals)
             for (Expression arg : call.getArguments()) {
-                elementNames.add(arg.toString());
+                if (arg.isNameExpr()) { // Only include variables, not values
+                    elementNames.add(arg.asNameExpr().getNameAsString());
+                }
+            }
+
+            // Also include the scope if it is a variable (like element.click())
+            if (call.getScope().isPresent() && call.getScope().get() instanceof NameExpr) {
+                elementNames.add(((NameExpr) call.getScope().get()).getNameAsString());
             }
         }
 
-        // Fallback to method name if no elements detected
+        // Fallback to method name if no element detected
         if (elementNames.isEmpty()) {
             elementNames.add(extractElementName(method.getNameAsString()));
         }
@@ -125,6 +133,6 @@ public class SeleniumCommentGeneratorByLocator {
     public static void main(String[] args) throws IOException {
         String filePath = "src/main/java/com/example/MySeleniumClass.java";
         updateComments(filePath);
-        System.out.println("Selenium Javadoc comments updated using By locators!");
+        System.out.println("Selenium Javadoc comments updated using reference variables!");
     }
 }
