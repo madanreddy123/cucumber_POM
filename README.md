@@ -44,59 +44,51 @@ public class SeleniumCommentGenerator {
                 continue;
             }
 
-            if (methodCall.contains("click")) {
-                actions.add("clicks on");
-            } else if (methodCall.contains("clear")) {
-                actions.add("clears");
-            } else if (methodCall.contains("sendkeys") || methodCall.contains("type") || methodCall.contains("settext")) {
+            if (methodCall.contains("click")) actions.add("clicks on");
+            else if (methodCall.contains("clear")) actions.add("clears");
+            else if (methodCall.contains("sendkeys") || methodCall.contains("type") || methodCall.contains("settext"))
                 actions.add("enters text into");
-            } else if (methodCall.contains("select")) {
-                actions.add("selects a value from");
-            } else if (methodCall.contains("wait")) {
-                actions.add("waits for");
-            } else if (methodCall.contains("movetoelement")) {
-                actions.add("moves to");
-            } else if (methodCall.contains("doubleclick")) {
-                actions.add("double-clicks on");
-            } else if (methodCall.contains("contextclick")) {
-                actions.add("right-clicks on");
-            }
+            else if (methodCall.contains("select")) actions.add("selects a value from");
+            else if (methodCall.contains("wait")) actions.add("waits for");
+            else if (methodCall.contains("movetoelement")) actions.add("moves to");
+            else if (methodCall.contains("doubleclick")) actions.add("double-clicks on");
+            else if (methodCall.contains("contextclick")) actions.add("right-clicks on");
         }
 
-        // Fallback: if no actions found in body, use method name
+        // Fallback on method name if no action detected
         if (actions.isEmpty()) {
-            if (method.getNameAsString().toLowerCase().contains("click")) {
-                actions.add("clicks on");
-            } else if (method.getNameAsString().toLowerCase().contains("enter") ||
-                    method.getNameAsString().toLowerCase().contains("type")) {
-                actions.add("enters text into");
-            } else if (method.getNameAsString().toLowerCase().contains("select")) {
-                actions.add("selects a value from");
-            } else if (method.getNameAsString().toLowerCase().contains("check") ||
-                    method.getNameAsString().toLowerCase().contains("validate")) {
-                actions.add("validates");
-            } else {
-                actions.add("performs an action on");
-            }
+            String lowerName = method.getNameAsString().toLowerCase();
+            if (lowerName.contains("click")) actions.add("clicks on");
+            else if (lowerName.contains("enter") || lowerName.contains("type")) actions.add("enters text into");
+            else if (lowerName.contains("select")) actions.add("selects a value from");
+            else if (lowerName.contains("check") || lowerName.contains("validate")) actions.add("validates");
+            else actions.add("performs an action on");
         }
 
-        // Join multiple actions
+        // Build grammatically correct sentence
+        String[] actionArray = actions.toArray(new String[0]);
         StringBuilder actionText = new StringBuilder();
-        int i = 0;
-        for (String action : actions) {
+        for (int i = 0; i < actionArray.length; i++) {
             if (i > 0) {
-                if (i == actions.size() - 1) {
-                    actionText.append(" and ");
-                } else {
-                    actionText.append(", ");
-                }
+                if (i == actionArray.length - 1) actionText.append(" and ");
+                else actionText.append(", ");
             }
-            actionText.append(action);
-            i++;
+            actionText.append(actionArray[i]);
         }
 
-        return "This method " + actionText +
-                (actionText.toString().contains("URL") ? "." : " the " + elementName + ".");
+        // Handle element grammar
+        String lastAction = actionArray[actionArray.length - 1];
+        String sentence;
+        if (lastAction.contains("into") || lastAction.contains("on") || lastAction.contains("for") || lastAction.contains("URL")) {
+            sentence = "This method " + actionText.toString() + " " + elementName + ".";
+        } else {
+            sentence = "This method " + actionText.toString() + " the " + elementName + ".";
+        }
+
+        // Capitalize first letter
+        sentence = sentence.substring(0, 1).toUpperCase() + sentence.substring(1);
+
+        return sentence;
     }
 
     private static String extractElementName(String methodName) {
@@ -104,9 +96,9 @@ public class SeleniumCommentGenerator {
                 .toLowerCase().split("\\s+");
         Set<String> actionWords = Set.of(
                 "click", "clear", "enter", "type", "sendkeys", "select",
-                "wait", "get", "set", "move", "double", "context", "check", "validate"
+                "wait", "get", "set", "move", "double", "context", "check", "validate", "login"
         );
-        Set<String> ignoredWords = Set.of("on", "the", "and", "into", "from", "for", "element", "field");
+        Set<String> ignoredWords = Set.of("on", "the", "and", "into", "from", "for", "element", "field", "with");
 
         StringBuilder element = new StringBuilder();
         for (String word : words) {
@@ -121,6 +113,6 @@ public class SeleniumCommentGenerator {
     public static void main(String[] args) throws IOException {
         String filePath = "src/main/java/com/example/MySeleniumClass.java";
         updateComments(filePath);
-        System.out.println("Selenium Javadoc comments updated using method name and body!");
+        System.out.println("Selenium Javadoc comments updated!");
     }
 }
