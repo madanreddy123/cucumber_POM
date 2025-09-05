@@ -1,16 +1,20 @@
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.type.Type;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SeleniumCommentGeneratorFilteredIgnoreList {
 
@@ -19,9 +23,15 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
             "driver", "actions", "By", "propertyReader"
     );
 
+    // Track By locator variable names
+    private static final Map<String, String> LOCATOR_MAP = new HashMap<>();
+
     public static void updateComments(String filePath) throws IOException {
         File file = new File(filePath);
         CompilationUnit cu = StaticJavaParser.parse(file);
+
+        // Collect all By locators first
+        collectLocators(cu);
 
         for (MethodDeclaration method : cu.findAll(MethodDeclaration.class)) {
             String commentText = generateComment(method);
@@ -30,6 +40,17 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
 
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(cu.toString());
+        }
+    }
+
+    // Collect all By locator variable declarations
+    private static void collectLocators(CompilationUnit cu) {
+        for (VariableDeclarator var : cu.findAll(VariableDeclarator.class)) {
+            Type type = var.getType();
+            if (type.isClassOrInterfaceType() &&
+                type.asClassOrInterfaceType().getNameAsString().equals("By")) {
+                LOCATOR_MAP.put(var.getNameAsString(), ""); // track locator variable name only
+            }
         }
     }
 
@@ -58,7 +79,11 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
                 if (arg.isNameExpr()) {
                     String varName = arg.asNameExpr().getNameAsString();
                     if (!IGNORE_VARIABLES.contains(varName)) {
-                        elementNames.add(varName);
+                        if (LOCATOR_MAP.containsKey(varName)) {
+                            elementNames.add(varName); // ✅ only variable name
+                        } else {
+                            elementNames.add(varName);
+                        }
                     }
                 }
             }
@@ -67,7 +92,11 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
             if (call.getScope().isPresent() && call.getScope().get() instanceof NameExpr) {
                 String varName = ((NameExpr) call.getScope().get()).getNameAsString();
                 if (!IGNORE_VARIABLES.contains(varName)) {
-                    elementNames.add(varName);
+                    if (LOCATOR_MAP.containsKey(varName)) {
+                        elementNames.add(varName); // ✅ only variable name
+                    } else {
+                        elementNames.add(varName);
+                    }
                 }
             }
         }
