@@ -12,10 +12,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Utility class to automatically generate and update
- * element-specific Javadoc comments for Java methods.
- */
 public class ElementCommentUpdater {
 
     private static final Set<String> ACTION_WORDS = new HashSet<>(Arrays.asList(
@@ -27,12 +23,6 @@ public class ElementCommentUpdater {
             "on", "in", "into", "from", "for", "the", "named", "and", "then", "of", "with"
     ));
 
-    /**
-     * Updates Javadoc comments for all methods in the given Java file.
-     *
-     * @param filePath Path to the Java source file
-     * @throws IOException if file reading or writing fails
-     */
     public static void updateComments(String filePath) throws IOException {
         File file = new File(filePath);
         CompilationUnit cu = StaticJavaParser.parse(file);
@@ -47,12 +37,6 @@ public class ElementCommentUpdater {
         }
     }
 
-    /**
-     * Generates an element-specific Javadoc comment based on the method name.
-     *
-     * @param methodName The name of the method
-     * @return The generated Javadoc comment text
-     */
     private static String generateElementSpecificComment(String methodName) {
         String lowerName = methodName.toLowerCase();
         String elementName = extractElementName(methodName);
@@ -82,24 +66,15 @@ public class ElementCommentUpdater {
         }
     }
 
-    /**
-     * Extracts a readable element name from camel-case method names.
-     *
-     * @param methodName The method name to parse
-     * @return A clean, readable name of the element
-     */
     private static String extractElementName(String methodName) {
-        // Split camelCase into words
         String[] words = methodName.replaceAll("([a-z])([A-Z])", "$1 $2").toLowerCase().split("\\s+");
 
         int startIndex = 0;
 
-        // Skip first word if it's an action word
         if (words.length > 0 && ACTION_WORDS.contains(words[0])) {
             startIndex = 1;
         }
 
-        // Handle compound actions like "clearAndEnter"
         if (words.length > 2 &&
                 ACTION_WORDS.contains(words[0]) &&
                 words[1].equals("and") &&
