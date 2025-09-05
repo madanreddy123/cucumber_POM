@@ -1,15 +1,18 @@
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.comments.JavadocComment;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class SeleniumCommentGeneratorFilteredIgnoreList {
@@ -19,9 +22,22 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
             "driver", "actions", "By", "propertyReader"
     );
 
+    // Map to store By references and their names
+    private static Map<String, String> byReferences = new HashMap<>();
+
     public static void updateComments(String filePath) throws IOException {
         File file = new File(filePath);
         CompilationUnit cu = StaticJavaParser.parse(file);
+
+        // Collect all By references in the class
+        for (ClassOrInterfaceDeclaration clazz : cu.findAll(ClassOrInterfaceDeclaration.class)) {
+            for (FieldDeclaration field : clazz.getFields()) {
+                if (field.getElementType() instanceof ClassOrInterfaceType &&
+                    ((ClassOrInterfaceType) field.getElementType()).getNameAsString().equals("By")) {
+                    field.getVariables().forEach(var -> byReferences.put(var.getNameAsString(), var.getNameAsString()));
+                }
+            }
+        }
 
         for (MethodDeclaration method : cu.findAll(MethodDeclaration.class)) {
             String commentText = generateComment(method);
@@ -52,13 +68,24 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
             else if (methodCall.contains("select")) actions.add("selects a value from");
             else if (methodCall.contains("waitfor") || methodCall.contains("wait")) actions.add("waits for");
             else if (methodCall.contains("movetoelement")) actions.add("moves to");
+            else if (methodCall.contains("get") && call.getScope().isPresent() &&
+                    call.getScope().get().toString().equalsIgnoreCase("driver")) {
+                actions.add("launches");
+                if (call.getArguments().size() > 0 && call.getArgument(0).isStringLiteralExpr()) {
+                    elementNames.add("URL: " + call.getArgument(0).asStringLiteralExpr().asString());
+                } else {
+                    elementNames.add("URL");
+                }
+            }
 
-            // Collect variable references from arguments, excluding ignored variables
+            // Collect By reference names used in method calls
             for (Expression arg : call.getArguments()) {
                 if (arg.isNameExpr()) {
                     String varName = arg.asNameExpr().getNameAsString();
-                    if (!IGNORE_VARIABLES.contains(varName)) {
-                        elementNames.add(varName);
+                    if (byReferences.containsKey(varName)) {
+                        elementNames.add(varName); // Use the By reference name as the element
+                    } else if (!IGNORE_VARIABLES.contains(varName)) {
+                        elementNames.add(varName); // Use other non-ignored variables
                     }
                 }
             }
@@ -66,7 +93,9 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
             // Include scope if it’s a variable and not in ignore list
             if (call.getScope().isPresent() && call.getScope().get() instanceof NameExpr) {
                 String varName = ((NameExpr) call.getScope().get()).getNameAsString();
-                if (!IGNORE_VARIABLES.contains(varName)) {
+                if (byReferences.containsKey(varName)) {
+                    elementNames.add(varName);
+                } else if (!IGNORE_VARIABLES.contains(varName)) {
                     elementNames.add(varName);
                 }
             }
@@ -85,6 +114,7 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
             else if (lowerName.contains("select")) actions.add("selects a value from");
             else if (lowerName.contains("check") || lowerName.contains("validate")) actions.add("validates");
             else if (lowerName.contains("wait")) actions.add("waits for");
+            else if (lowerName.contains("launch")) actions.add("launches");
             else actions.add("performs an action on");
         }
 
@@ -119,7 +149,7 @@ public class SeleniumCommentGeneratorFilteredIgnoreList {
                 .toLowerCase().split("\\s+");
         Set<String> actionWords = Set.of(
                 "click", "clear", "enter", "type", "sendkeys", "select",
-                "wait", "get", "set", "move", "double", "context", "check", "validate", "login"
+                "wait", "get", "set", "move", "double", "context", "check", "validate", "login", "launch"
         );
         Set<String> ignoredWords = Set.of("on", "the", "and", "into", "from", "for", "element", "field", "with");
 
