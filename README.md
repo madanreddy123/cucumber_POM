@@ -10,14 +10,14 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class SeleniumCommentUpdater {
+public class SeleniumCommentGenerator {
 
     public static void updateComments(String filePath) throws IOException {
         File file = new File(filePath);
         CompilationUnit cu = StaticJavaParser.parse(file);
 
         for (MethodDeclaration method : cu.findAll(MethodDeclaration.class)) {
-            String commentText = generateSeleniumComment(method);
+            String commentText = generateComment(method);
             method.setJavadocComment(new JavadocComment(commentText));
         }
 
@@ -26,16 +26,23 @@ public class SeleniumCommentUpdater {
         }
     }
 
-    private static String generateSeleniumComment(MethodDeclaration method) {
+    private static String generateComment(MethodDeclaration method) {
+        Set<String> actions = new LinkedHashSet<>();
+        String elementName = extractElementName(method.getNameAsString());
+
         if (!method.getBody().isPresent()) {
             return "This method has no implementation yet.";
         }
 
-        Set<String> actions = new LinkedHashSet<>();
-        String elementName = extractElementName(method.getNameAsString());
-
         for (MethodCallExpr call : method.findAll(MethodCallExpr.class)) {
             String methodCall = call.getNameAsString().toLowerCase();
+
+            // Special case: driver.get(url)
+            if (methodCall.equals("get") && call.getScope().isPresent() &&
+                    call.getScope().get().toString().equals("driver")) {
+                actions.add("navigates to the specified URL");
+                continue;
+            }
 
             if (methodCall.contains("click")) {
                 actions.add("clicks on");
@@ -47,8 +54,6 @@ public class SeleniumCommentUpdater {
                 actions.add("selects a value from");
             } else if (methodCall.contains("wait")) {
                 actions.add("waits for");
-            } else if (methodCall.contains("get")) {
-                actions.add("retrieves the value from");
             } else if (methodCall.contains("movetoelement")) {
                 actions.add("moves to");
             } else if (methodCall.contains("doubleclick")) {
@@ -58,11 +63,24 @@ public class SeleniumCommentUpdater {
             }
         }
 
+        // Fallback: if no actions found in body, use method name
         if (actions.isEmpty()) {
-            actions.add("performs an action on");
+            if (method.getNameAsString().toLowerCase().contains("click")) {
+                actions.add("clicks on");
+            } else if (method.getNameAsString().toLowerCase().contains("enter") ||
+                    method.getNameAsString().toLowerCase().contains("type")) {
+                actions.add("enters text into");
+            } else if (method.getNameAsString().toLowerCase().contains("select")) {
+                actions.add("selects a value from");
+            } else if (method.getNameAsString().toLowerCase().contains("check") ||
+                    method.getNameAsString().toLowerCase().contains("validate")) {
+                actions.add("validates");
+            } else {
+                actions.add("performs an action on");
+            }
         }
 
-        // Join actions nicely
+        // Join multiple actions
         StringBuilder actionText = new StringBuilder();
         int i = 0;
         for (String action : actions) {
@@ -77,14 +95,16 @@ public class SeleniumCommentUpdater {
             i++;
         }
 
-        return "This method " + actionText + " the " + elementName + ".";
+        return "This method " + actionText +
+                (actionText.toString().contains("URL") ? "." : " the " + elementName + ".");
     }
 
     private static String extractElementName(String methodName) {
-        String[] words = methodName.replaceAll("([a-z])([A-Z])", "$1 $2").toLowerCase().split("\\s+");
+        String[] words = methodName.replaceAll("([a-z])([A-Z])", "$1 $2")
+                .toLowerCase().split("\\s+");
         Set<String> actionWords = Set.of(
-                "click", "clear", "enter", "type", "sendkeys", "select", "wait",
-                "get", "set", "move", "double", "context"
+                "click", "clear", "enter", "type", "sendkeys", "select",
+                "wait", "get", "set", "move", "double", "context", "check", "validate"
         );
         Set<String> ignoredWords = Set.of("on", "the", "and", "into", "from", "for", "element", "field");
 
@@ -101,6 +121,6 @@ public class SeleniumCommentUpdater {
     public static void main(String[] args) throws IOException {
         String filePath = "src/main/java/com/example/MySeleniumClass.java";
         updateComments(filePath);
-        System.out.println("Selenium Javadoc comments updated!");
+        System.out.println("Selenium Javadoc comments updated using method name and body!");
     }
 }
