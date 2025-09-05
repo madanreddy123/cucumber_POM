@@ -12,7 +12,12 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class SeleniumCommentGeneratorByReferenceFiltered {
+public class SeleniumCommentGeneratorFilteredIgnoreList {
+
+    // List of variables/types to ignore in comments
+    private static final Set<String> IGNORE_VARIABLES = Set.of(
+            "driver", "actions", "By", "propertyReader"
+    );
 
     public static void updateComments(String filePath) throws IOException {
         File file = new File(filePath);
@@ -48,20 +53,20 @@ public class SeleniumCommentGeneratorByReferenceFiltered {
             else if (methodCall.contains("waitfor") || methodCall.contains("wait")) actions.add("waits for");
             else if (methodCall.contains("movetoelement")) actions.add("moves to");
 
-            // Collect only variable references (By locators or WebElements)
+            // Collect only variable references that are not in the ignore list
             for (Expression arg : call.getArguments()) {
                 if (arg.isNameExpr()) {
                     String varName = arg.asNameExpr().getNameAsString();
-                    if (!varName.equals("driver") && !varName.equals("actions")) {
+                    if (!IGNORE_VARIABLES.contains(varName)) {
                         elementNames.add(varName);
                     }
                 }
             }
 
-            // Also include the scope if it is a variable (like element.click())
+            // Also include the scope if it is a variable and not in ignore list
             if (call.getScope().isPresent() && call.getScope().get() instanceof NameExpr) {
                 String varName = ((NameExpr) call.getScope().get()).getNameAsString();
-                if (!varName.equals("driver") && !varName.equals("actions")) {
+                if (!IGNORE_VARIABLES.contains(varName)) {
                     elementNames.add(varName);
                 }
             }
@@ -130,6 +135,6 @@ public class SeleniumCommentGeneratorByReferenceFiltered {
     public static void main(String[] args) throws IOException {
         String filePath = "src/main/java/com/example/MySeleniumClass.java";
         updateComments(filePath);
-        System.out.println("Selenium Javadoc comments updated using By locator references only!");
+        System.out.println("Selenium Javadoc comments updated using filtered element references!");
     }
 }
