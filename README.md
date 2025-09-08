@@ -1,3 +1,4 @@
+
 package com.example.utils;
 
 import com.github.javaparser.StaticJavaParser;
@@ -16,14 +17,18 @@ import java.util.List;
 
 /**
  * Utility class to automatically generate Javadoc comments for Selenium methods.
- * It analyzes method calls and assertions, and produces descriptive comments
- * based only on By locator reference variables.
+ * Analyzes method calls and assertions, producing descriptive comments based on By locator reference variables.
  */
 public class SeleniumCommentGenerator {
 
-    // Variables/types to ignore in comments
     private static final String[] IGNORE_VARS = {"driver", "actions", "by", "propertyreader"};
 
+    /**
+     * Updates Javadoc comments for methods in the specified Java file.
+     *
+     * @param filePath Path to the Java file to process
+     * @throws IOException If an I/O error occurs while reading or writing the file
+     */
     public static void updateComments(String filePath) throws IOException {
         File file = new File(filePath);
         CompilationUnit cu = StaticJavaParser.parse(file);
@@ -38,6 +43,9 @@ public class SeleniumCommentGenerator {
         }
     }
 
+    /**
+     * Generates a Javadoc comment for a given method based on its Selenium method calls and assertions.
+     */
     private static String generateComment(MethodDeclaration method) {
         if (!method.getBody().isPresent()) {
             return "This method has no implementation yet.";
@@ -48,83 +56,96 @@ public class SeleniumCommentGenerator {
         for (MethodCallExpr call : method.findAll(MethodCallExpr.class)) {
             String methodCall = call.getNameAsString().toLowerCase();
 
-            // -------------------
-            // Handle Assertions
-            // -------------------
             if (isAssertion(call)) {
-                if (methodCall.contains("asserttrue")) {
-                    String element = extractByLocatorFromArgs(call);
-                    if (element != null) sentences.add("the " + element + " element is validated as displayed");
-                    continue;
-                } else if (methodCall.contains("assertfalse")) {
-                    String element = extractByLocatorFromArgs(call);
-                    if (element != null) sentences.add("the " + element + " element is validated as not displayed");
-                    continue;
-                } else if (methodCall.contains("assertequals")) {
-                    String element = extractByLocatorFromArgs(call);
-                    if (element != null) sentences.add("the " + element + " element value is validated as equal to the expected value");
-                    else sentences.add("the values are validated as equal");
-                    continue;
-                } else if (methodCall.contains("assertnotequals")) {
-                    String element = extractByLocatorFromArgs(call);
-                    if (element != null) sentences.add("the " + element + " element value is validated as not equal to the expected value");
-                    else sentences.add("the values are validated as not equal");
-                    continue;
-                } else if (methodCall.contains("assertnull")) {
-                    sentences.add("the object is validated as null");
-                    continue;
-                } else if (methodCall.contains("assertnotnull")) {
-                    sentences.add("the object is validated as not null");
-                    continue;
-                } else if (methodCall.contains("fail")) {
-                    sentences.add("the test is marked as failed");
-                    continue;
-                }
+                sentences.add(generateAssertionComment(methodCall, call));
+                continue;
             }
 
-            // -------------------
-            // Normal Selenium/Action calls
-            // -------------------
             String elementName = extractByLocatorFromArgs(call);
-            if (elementName == null) continue;
-
-            if (methodCall.contains("click")) sentences.add("clicks on the " + elementName + " element");
-            else if (methodCall.contains("clear")) sentences.add("clears the " + elementName + " element");
-            else if (methodCall.contains("sendkeys") || methodCall.contains("type") || methodCall.contains("settext"))
-                sentences.add("enters text into the " + elementName + " element");
-            else if (methodCall.contains("select")) sentences.add("selects a value from the " + elementName + " element");
-            else if (methodCall.contains("waitfor") || methodCall.contains("wait")) sentences.add("waits for the " + elementName + " element");
-            else if (methodCall.contains("movetoelement")) sentences.add("moves to the " + elementName + " element");
+            if (elementName != null) {
+                sentences.add(generateActionComment(methodCall, elementName));
+            }
         }
 
-        if (sentences.isEmpty()) return "This method performs an action.";
+        return formatComment(sentences);
+    }
 
-        // Combine sentences into a single descriptive Javadoc
+    /**
+     * Generates a comment for an assertion method call.
+     */
+    private static String generateAssertionComment(String methodCall, MethodCallExpr call) {
+        String element = extractByLocatorFromArgs(call);
+
+        if (methodCall.contains("asserttrue")) {
+            return element != null ? "the " + element + " element is validated as displayed" : "a condition is validated as true";
+        } else if (methodCall.contains("assertfalse")) {
+            return element != null ? "the " + element + " element is validated as not displayed" : "a condition is validated as false";
+        } else if (methodCall.contains("assertequals")) {
+            return element != null ? "the " + element + " element value is validated as equal to the expected value" : "the values are validated as equal";
+        } else if (methodCall.contains("assertnotequals")) {
+            return element != null ? "the " + element + " element value is validated as not equal to the expected value" : "the values are validated as not equal";
+        } else if (methodCall.contains("assertnull")) {
+            return "the object is validated as null";
+        } else if (methodCall.contains("assertnotnull")) {
+            return "the object is validated as not null";
+        } else if (methodCall.contains("fail")) {
+            return "the test is marked as failed";
+        }
+
+        return "";
+    }
+
+    /**
+     * Generates a comment for a Selenium action method call.
+     */
+    private static String generateActionComment(String methodCall, String elementName) {
+        if (methodCall.contains("click")) {
+            return "clicks on the " + elementName + " element";
+        } else if (methodCall.contains("clear")) {
+            return "clears the " + elementName + " element";
+        } else if (methodCall.contains("sendkeys") || methodCall.contains("type") || methodCall.contains("settext")) {
+            return "enters text into the " + elementName + " element";
+        } else if (methodCall.contains("select")) {
+            return "selects a value from the " + elementName + " element";
+        } else if (methodCall.contains("waitfor") || methodCall.contains("wait")) {
+            return "waits for the " + elementName + " element";
+        } else if (methodCall.contains("movetoelement")) {
+            return "moves to the " + elementName + " element";
+        }
+        return "";
+    }
+
+    /**
+     * Formats a list of sentences into a single Javadoc comment.
+     */
+    private static String formatComment(List<String> sentences) {
+        if (sentences.isEmpty()) {
+            return "This method performs an action.";
+        }
+
         StringBuilder comment = new StringBuilder("This method ");
         for (int i = 0; i < sentences.size(); i++) {
             if (i > 0) {
-                if (i == sentences.size() - 1) comment.append(" and ");
-                else comment.append(", ");
+                comment.append(i == sentences.size() - 1 ? " and " : ", ");
             }
             comment.append(sentences.get(i));
         }
         comment.append(".");
 
-        // Capitalize first letter
         return comment.substring(0, 1).toUpperCase() + comment.substring(1);
     }
 
     private static boolean isAssertion(MethodCallExpr call) {
-        if (!call.getScope().isPresent()) return false;
-        String scope = call.getScope().get().toString().toLowerCase();
-        return scope.contains("assert");
+        return call.getScope().isPresent() && call.getScope().get().toString().toLowerCase().contains("assert");
     }
 
     private static String extractByLocatorFromArgs(MethodCallExpr call) {
         for (Expression arg : call.getArguments()) {
             if (arg.isNameExpr()) {
                 String varName = arg.asNameExpr().getNameAsString();
-                if (!isIgnored(varName)) return varName;
+                if (!isIgnored(varName)) {
+                    return varName;
+                }
             }
         }
         return null;
@@ -132,7 +153,9 @@ public class SeleniumCommentGenerator {
 
     private static boolean isIgnored(String varName) {
         for (String ignore : IGNORE_VARS) {
-            if (ignore.equalsIgnoreCase(varName)) return true;
+            if (ignore.equalsIgnoreCase(varName)) {
+                return true;
+            }
         }
         return false;
     }
@@ -143,4 +166,3 @@ public class SeleniumCommentGenerator {
         System.out.println("Selenium Javadoc comments updated with actions and assertions!");
     }
 }
-
