@@ -1,4 +1,3 @@
-
 package com.example.utils;
 
 import com.github.javaparser.StaticJavaParser;
@@ -15,20 +14,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Utility class to automatically generate Javadoc comments for Selenium methods.
- * Analyzes method calls and assertions, producing descriptive comments based on By locator reference variables.
- */
 public class SeleniumCommentGenerator {
 
     private static final String[] IGNORE_VARS = {"driver", "actions", "by", "propertyreader"};
 
-    /**
-     * Updates Javadoc comments for methods in the specified Java file.
-     *
-     * @param filePath Path to the Java file to process
-     * @throws IOException If an I/O error occurs while reading or writing the file
-     */
     public static void updateComments(String filePath) throws IOException {
         File file = new File(filePath);
         CompilationUnit cu = StaticJavaParser.parse(file);
@@ -43,9 +32,6 @@ public class SeleniumCommentGenerator {
         }
     }
 
-    /**
-     * Generates a Javadoc comment for a given method based on its Selenium method calls and assertions.
-     */
     private static String generateComment(MethodDeclaration method) {
         if (!method.getBody().isPresent()) {
             return "This method has no implementation yet.";
@@ -70,9 +56,6 @@ public class SeleniumCommentGenerator {
         return formatComment(sentences);
     }
 
-    /**
-     * Generates a comment for an assertion method call.
-     */
     private static String generateAssertionComment(String methodCall, MethodCallExpr call) {
         String element = extractByLocatorFromArgs(call);
 
@@ -95,9 +78,6 @@ public class SeleniumCommentGenerator {
         return "";
     }
 
-    /**
-     * Generates a comment for a Selenium action method call.
-     */
     private static String generateActionComment(String methodCall, String elementName) {
         if (methodCall.contains("click")) {
             return "clicks on the " + elementName + " element";
@@ -115,9 +95,6 @@ public class SeleniumCommentGenerator {
         return "";
     }
 
-    /**
-     * Formats a list of sentences into a single Javadoc comment.
-     */
     private static String formatComment(List<String> sentences) {
         if (sentences.isEmpty()) {
             return "This method performs an action.";
