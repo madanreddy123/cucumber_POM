@@ -143,3 +143,4 @@ public class SeleniumCommentGenerator {
         System.out.println("Selenium Javadoc comments updated with actions and assertions!");
     }
 }
+
