@@ -1,1 +1,0 @@
-Just a quick update—Bamboo jobs for ECS Dairy and Imports are still running, so I’ll be able to share the WSR report on Monday once they’re done.
