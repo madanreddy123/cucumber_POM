@@ -61,3 +61,9 @@ var radio = document.evaluate(
 ).singleNodeValue;
 
 radio.checked = true;
+
+
+document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
+
+
+
