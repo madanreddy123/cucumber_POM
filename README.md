@@ -65,21 +65,3 @@ radio.checked = true;
 
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
-
-
-import java.io.IOException;
-import java.util.List;
-
-public class Example {
-    public static void main(String[] args) throws IOException {
-        List<String> lines = TextFileUtil.readLines("example.txt");
-
-        for (String line : lines) {
-            System.out.println(line);
-        }
-
-        String content = TextFileUtil.readAsString("example.txt");
-        System.out.println(content);
-    }
-}
-
