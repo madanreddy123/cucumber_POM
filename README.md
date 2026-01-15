@@ -65,15 +65,5 @@ radio.checked = true;
 
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
-public static String extractFirstNumberAfterDash(String input) {
-    String regex = "-\\s*(\\d+)\\s+of";
 
-    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-    java.util.regex.Matcher matcher = pattern.matcher(input);
-
-    if (matcher.find()) {
-        return matcher.group(1); // the first number after dash
-    }
-
-    return "";
-}
+    
