@@ -66,6 +66,12 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-2026-02-20T15:30
+JavascriptExecutor js = (JavascriptExecutor) driver;
+
+js.executeScript(
+    "var input = document.getElementById('etaId');" +
+    "input.focus();" +
+    "input.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowLeft', code: 'ArrowLeft', keyCode: 37, which: 37, bubbles: true}));"
+);
 
 
