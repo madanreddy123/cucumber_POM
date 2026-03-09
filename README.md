@@ -66,4 +66,3 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-prefs.put("profile.default_content_setting_values.automatic_downloads", 1);
