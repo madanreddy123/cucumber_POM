@@ -66,11 +66,5 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
- if (finished == 4) {
-            long endTime = System.currentTimeMillis();
-            long totalTime = endTime - startTime;
-
-            System.out.println("Total time for 4 instances: " + totalTime + " ms");
-        }
 
 
