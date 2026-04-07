@@ -66,11 +66,7 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-Dear HR,
-I hope you’re doing well.
-I’m writing to let you know that I have decided to resign from my role as Sr. QE Automation Engineer at Sogeti. I would like to request my last working day to be 17 April 2026, if that is acceptable.
-Thank you for the support and opportunities during my time here. I will make sure to hand over my work properly and support the transition. If needed, I’m happy to put in extra time to complete knowledge transfer and ensure a smooth handover.
-Thanks again.
+
 
 
 
