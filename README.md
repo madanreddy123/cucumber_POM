@@ -67,7 +67,12 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 
 
 
-
+Developing automation scripts for new test cases that were previously executed manually.
+Reviewing the CI/CD pipeline reports (Allure Reports) to identify and analyze any test failures.
+Preparing and sending the Weekly Status Report (WSR) to the team on a regular basis.
+Regularly pushing updated automation code to Git.
+Maintaining and updating the automation tracker on a weekly basis.
+Performing code refactoring of the existing automation framework whenever necessary to improve code quality and maintainability.
 
 
 
