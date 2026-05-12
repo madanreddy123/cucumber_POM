@@ -66,4 +66,4 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-
+https://youtrack.jetbrains.com/articles/IDEA-A-2100662502/IntelliJ-IDEA-2025.3-Latest-Builds
