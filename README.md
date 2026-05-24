@@ -66,4 +66,17 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-https://youtrack.jetbrains.com/articles/IDEA-A-2100662502/IntelliJ-IDEA-2025.3-Latest-Builds
+// Delete cookies
+driver.manage().deleteAllCookies();
+
+// Clear local storage + session storage
+JavascriptExecutor js = (JavascriptExecutor) driver;
+
+js.executeScript("window.localStorage.clear();");
+js.executeScript("window.sessionStorage.clear();");
+
+// Refresh browser
+driver.navigate().refresh();
+
+// Small wait
+Thread.sleep(3000);
