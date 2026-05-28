@@ -1,3 +1,0 @@
-set Secrets_readUser=xyz123 && set CLIENT_SECRET=xyz123 && set host_environment=UAT && mvn test -Dcucumber.filter.tags="@FFI-x12" -Dtest.environment=UAT -Djavax.net.ssl.trustStore="C:Users\u001BCGIT
--cuw-qa-automation\fo-cuw-automationsrc\test
-esourceskeyStore\fo-cu-xyz-ca-cert-sha1n2.jks"
