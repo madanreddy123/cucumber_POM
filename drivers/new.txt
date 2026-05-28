@@ -1,0 +1,7 @@
+mvn clean test `
+-Dcucumber.filter.tags="@FFI-x12" `
+-Dtest.environment=UAT `
+-Djavax.net.ssl.trustStore="C:\Users\33\CUWGIT\12-cuw-qa-automation\fo-cuw-automation\src\test\resources\keyStore\fo-cu-xyz-ca-cert-sha1n2.jks" `
+-DSecrets_readUser=xyz123 `
+-DCLIENT_SECRET=xyz123 `
+-Dhost_environment=UAT
