@@ -80,3 +80,6 @@ driver.navigate().refresh();
 
 // Small wait
 Thread.sleep(3000);
+
+
+=(csa!K2 + csa!L2 - csa!P2 - csa!AZ2) - (csa!V2 + csa!AI2) - csa!AK2
