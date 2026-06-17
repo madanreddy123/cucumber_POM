@@ -85,3 +85,5 @@ Thread.sleep(3000);
 =(csa!K2 + csa!L2 - csa!P2 - csa!AZ2) - (csa!V2 + csa!AI2) - csa!AK2
 
 =IF(ISNUMBER(SEARCH("abc",P2)),0-B2,"")
+
+=IF(ISNUMBER(SEARCH("abc",P2)),-B2,C2-B2)
