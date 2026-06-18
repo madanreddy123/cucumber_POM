@@ -65,5 +65,4 @@ radio.checked = true;
 
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
-
-"My manager is very professional in the way he communicates and manages meetings. He is kind, easy to talk to, and treats everyone equally. I appreciate that he doesn't differentiate between employees and makes everyone feel included and respected."
+
