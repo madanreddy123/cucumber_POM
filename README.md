@@ -66,20 +66,4 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-// Delete cookies
-driver.manage().deleteAllCookies();
-
-// Clear local storage + session storage
-JavascriptExecutor js = (JavascriptExecutor) driver;
-
-js.executeScript("window.localStorage.clear();");
-js.executeScript("window.sessionStorage.clear();");
-
-// Refresh browser
-driver.navigate().refresh();
-
-// Small wait
-Thread.sleep(3000);
-
-
-=IF(ISNUMBER(SEARCH("abc",P2)),-B2,IF(ISNUMBER(SEARCH("no abc",P2)),C2-B2,""))
+"My manager is very professional in the way he communicates and manages meetings. He is kind, easy to talk to, and treats everyone equally. I appreciate that he doesn't differentiate between employees and makes everyone feel included and respected."
