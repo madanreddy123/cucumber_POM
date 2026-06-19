@@ -65,4 +65,8 @@ radio.checked = true;
 
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
-
+Dear HR Team,
+I hope you are well.
+I am currently being taxed on an emergency basis and would like to check whether my employment details have been submitted to Revenue and are fully processed on your side.
+Could you please confirm if everything is in order, or let me know if anything is needed from me to resolve this?
+Thank you for your help.
