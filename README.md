@@ -66,30 +66,4 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-  // Helper method to clean text (remove decimals, $, %, etc.)
-private String cleanTextForSearch(String text) {
-    if (text == null || text.isEmpty()) {
-        return "";
-    }
-
-    // Remove currency symbols, percentage, etc.
-    String cleaned = text.replaceAll("[$,%\\s]", "");
-
-    // Remove decimal part (.00, .xx)
-    cleaned = cleaned.replaceAll("\\.\\d+", "");
-
-    // Handle cases like "100.00%" -> "100", "$0.00" -> "0"
-    // Also trim any remaining whitespace
-    return cleaned.trim();
-}
-
-// Helper method to check if the original row/cell is still visible after search
-private boolean isRowVisibleAfterSearch(String columnLocator, String expectedText) {
-    try {
-        // Re-find the element - if it still exists and is displayed
-        WebElement element = driver.findElement(By.xpath(columnLocator));
-        return element.isDisplayed();
-    } catch (NoSuchElementException e) {
-        return false;
-    }
-}
+  
