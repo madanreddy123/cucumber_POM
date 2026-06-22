@@ -66,17 +66,18 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-DateTimeFormatter formatter =
-        DateTimeFormatter.ofPattern("M/d/yyyy h:mm a");
+String text = "6/22/2026 7:18 AM";
 
-LocalDateTime dateTime = LocalDateTime.parse(text, formatter);
+String[] parts = text.split(" ");
 
-String hour = dateTime.format(DateTimeFormatter.ofPattern("h"));
-String minute = dateTime.format(DateTimeFormatter.ofPattern("mm"));
-String amPm = dateTime.format(DateTimeFormatter.ofPattern("a"));
+String time = parts[1];     // 7:18
+String amPm = parts[2];     // AM
 
-System.out.println(hour);
-System.out.println(minute);
-System.out.println(amPm);
+String[] timeParts = time.split(":");
 
-  
+String hour = timeParts[0]; // 7
+String min = timeParts[1];  // 18
+
+System.out.println("Hour: " + hour);
+System.out.println("Minute: " + min);
+System.out.println("AM/PM: " + amPm);
