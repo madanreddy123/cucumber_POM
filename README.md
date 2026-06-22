@@ -66,4 +66,17 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
+DateTimeFormatter formatter =
+        DateTimeFormatter.ofPattern("M/d/yyyy h:mm a");
+
+LocalDateTime dateTime = LocalDateTime.parse(text, formatter);
+
+String hour = dateTime.format(DateTimeFormatter.ofPattern("h"));
+String minute = dateTime.format(DateTimeFormatter.ofPattern("mm"));
+String amPm = dateTime.format(DateTimeFormatter.ofPattern("a"));
+
+System.out.println(hour);
+System.out.println(minute);
+System.out.println(amPm);
+
   
