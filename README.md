@@ -67,4 +67,4 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 
 
 
- =IF(OR(D5="",E5="",U5="",V5=""),"No Data",IF(AND(TRIM(D5&"")=TRIM(U5&""),TRIM(E5&"")=TRIM(V5&"")),"Match","Mismatch"))
+ =IF(OR(D5="",E5="",U5="",V5=""),"No Data",IF(AND(TRIM(D5&"")=TRIM(U5&""),ROUND(E5,1)=ROUND(V5,1)),"Match","Mismatch"))
