@@ -69,3 +69,6 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 =IF(ROUND(A1,1)=ROUND(B1,1),"Values Matched","Values Not Matched")
 
 =IF(TEXT(A1,"0.0")=TEXT(B1,"0.0"),"Values Matched","Values Not Matched")
+
+
+=IF(TEXT(ROUND(A1,1),"0.0")=TEXT(ROUND(B1,1),"0.0"),"Values Matched","Values Not Matched")
