@@ -66,3 +66,4 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
+=IF(ROUND(A1,1)=ROUND(B1,1),"Values Matched","Values Not Matched")
