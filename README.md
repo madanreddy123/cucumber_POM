@@ -66,3 +66,14 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
+List<WebElement> allElements = driver.findElements(By.xpath("//*"));
+
+for (WebElement element : allElements) {
+    System.out.println(
+        "Tag: " + element.getTagName()
+        + " | Text: " + element.getText()
+        + " | ID: " + element.getAttribute("id")
+        + " | Class: " + element.getAttribute("class")
+    );
+}
+
