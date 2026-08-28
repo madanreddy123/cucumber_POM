@@ -66,14 +66,15 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-List<WebElement> allElements = driver.findElements(By.xpath("//*"));
+System.out.println("Windows user:");
+System.out.println(
+    new String(
+        Runtime.getRuntime()
+            .exec("whoami")
+            .getInputStream()
+            .readAllBytes(),
+        StandardCharsets.UTF_8
+    )
+);
 
-for (WebElement element : allElements) {
-    System.out.println(
-        "Tag: " + element.getTagName()
-        + " | Text: " + element.getText()
-        + " | ID: " + element.getAttribute("id")
-        + " | Class: " + element.getAttribute("class")
-    );
-}
-
+WebDriver driver = new ChromeDriver(options);
