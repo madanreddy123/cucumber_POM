@@ -66,15 +66,20 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-System.out.println("Windows user:");
-System.out.println(
-    new String(
-        Runtime.getRuntime()
-            .exec("whoami")
-            .getInputStream()
-            .readAllBytes(),
-        StandardCharsets.UTF_8
-    )
-);
+int[] numbers = {1, 4, 6, 8};
 
-WebDriver driver = new ChromeDriver(options);
+for (int i = 1; i <= 9; i++) {
+    boolean found = false;
+
+    for (int number : numbers) {
+        if (i == number) {
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        System.out.println(i);
+        break;
+    }
+}
