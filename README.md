@@ -66,20 +66,19 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
 
 
-int[] numbers = {1, 4, 6, 8};
+ChromeOptions options = new ChromeOptions();
 
-for (int i = 1; i <= 9; i++) {
-    boolean found = false;
+Map<String, Object> prefs = new HashMap<>();
 
-    for (int number : numbers) {
-        if (i == number) {
-            found = true;
-            break;
-        }
-    }
+Map<String, Object> contentSettings = new HashMap<>();
 
-    if (!found) {
-        System.out.println(i);
-        break;
-    }
-}
+// Allow local network access
+contentSettings.put("local_network_access", 1);
+
+prefs.put("profile.default_content_setting_values", contentSettings);
+
+options.setExperimentalOption("prefs", prefs);
+
+WebDriver driver = new ChromeDriver(options);
+
+driver.get("https://your-sharepoint-url");
