@@ -67,4 +67,4 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 
 
 
-=INDEX(A:Z,11781,MATCH(E1,A1:Z1,0))&""
+=XLOOKUP("City",A1:CK1,A2:CK2)
