@@ -68,3 +68,5 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 
 
 =XLOOKUP("City",A1:CK1,A2:CK2)
+
+=XLOOKUP(TRIM(T1),TRIM(Data!A1:CK1),Data!A2:CK2,"Not Found")
