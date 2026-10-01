@@ -67,8 +67,3 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 
 
 
-Performed eUTF Labs testing for the months of July, August, and September.
-Executed regression testing for the CUW and VoteCalc applications.
-Updated FSA authentication credentials in the automation framework and validated them in the non-production environment.
-Developed automation for a new Angular application (CSA Pool Balance dashboard). The code was committed, reviewed, approved, and merged into the main branch.
-Automated a production issue in the VoteCalc application (Research Access Fees page). The issue is now detectable during regression runs in the non-production environment.
