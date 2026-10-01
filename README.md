@@ -70,3 +70,16 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 =XLOOKUP("City",A1:CK1,A2:CK2)
 
 =XLOOKUP(TRIM(T1),TRIM(Data!A1:CK1),Data!A2:CK2,"Not Found")
+
+
+Update the Jenkins job to create the "info.properties" file at runtime under:
+
+"src/test/resources/info.properties"
+
+The file should be dynamically generated with the following details:
+
+- App Role Name
+- App Secret ID
+- Host Environment
+
+These values will be used by the automated test execution to configure and authenticate the application during test runs. The App Secret ID should be handled securely and should not be exposed in Jenkins logs.
