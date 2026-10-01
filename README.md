@@ -67,28 +67,10 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 
 
 
-=XLOOKUP("City",A1:CK1,A2:CK2)
-
-=XLOOKUP(TRIM(T1),TRIM(Data!A1:CK1),Data!A2:CK2,"Not Found")
-
-
- <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-surefire-plugin</artifactId>
-    <version>${maven.surefire.version}</version>
-    <dependencies>
+<dependencies>
         <dependency>
             <groupId>org.apache.maven.surefire</groupId>
             <artifactId>surefire-junit4</artifactId>
             <version>${maven.surefire.version}</version>
         </dependency>
     </dependencies>
-    <configuration>
-        <!-- Optional but recommended -->
-        <includes>
-            <include>**/*Test.java</include>
-            <include>**/*Tests.java</include>
-            <include>**/RunCucumberTest.java</include> <!-- if you have a Cucumber runner -->
-        </includes>
-    </configuration>
-</plugin>
