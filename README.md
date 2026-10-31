@@ -299,4 +299,4 @@ async function handleWebhook(request, env) {
 }
 
 
-https://upvcio-payment-api.madanreddy319.workers.dev/api/stripe/webhook
+https://upvcio-payment-api.madanreddy319.workers.dev/api/checkout
