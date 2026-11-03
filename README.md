@@ -67,20 +67,71 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 
 
 
-// 1. Filter records for July 2026
-List<Map<String, Object>> julyRecords = response.jsonPath().getList(
-    "records.findAll { it.createdTimestamp.startsWith('2026-07') }"
-);
 
-// 2. Print every field separately
-for (Map<String, Object> record : julyRecords) {
 
-    for (Map.Entry<String, Object> entry : record.entrySet()) {
 
-        System.out.println(
-            entry.getKey() + " : " + entry.getValue()
-        );
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import io.restassured.path.json.JsonPath;
+
+import java.util.Map;
+
+public class TimestampFilter {
+
+    public static void main(String[] args) {
+
+        // 1. API request
+        Response response = RestAssured
+                .given()
+                .when()
+                .get("YOUR_API_ENDPOINT");
+
+        // 2. Validate response
+        System.out.println("Status Code: " + response.getStatusCode());
+
+        // 3. Print complete response body
+        System.out.println("COMPLETE RESPONSE:");
+        response.prettyPrint();
+
+        // 4. Convert response to JsonPath
+        JsonPath json = response.jsonPath();
+
+        // 5. Get all root-level keys and values
+        Map<String, Object> body = json.getMap("$");
+
+        // 6. Filter by year and month
+        String targetMonth = "2026-07";
+
+        System.out.println("\nMATCHING RECORDS:");
+
+        for (Map.Entry<String, Object> entry : body.entrySet()) {
+
+            Object value = entry.getValue();
+
+            // Check whether the value is a nested JSON object
+            if (value instanceof Map<?, ?>) {
+
+                Map<?, ?> nested = (Map<?, ?>) value;
+
+                Object timestamp = nested.get("createdTimestamp");
+
+                // Check timestamp
+                if (timestamp != null &&
+                    timestamp.toString().startsWith(targetMonth)) {
+
+                    System.out.println("Key: " + entry.getKey());
+
+                    // Print every field separately
+                    for (Map.Entry<?, ?> field : nested.entrySet()) {
+
+                        System.out.println(
+                            field.getKey() + " : " + field.getValue()
+                        );
+                    }
+
+                    System.out.println("------------------------");
+                }
+            }
+        }
     }
-
-    System.out.println("----------------------");
 }
