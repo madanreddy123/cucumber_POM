@@ -67,3 +67,45 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 
 
 
+// 5. Get root-level response
+Object body = json.get("$");
+
+// 6. Set target month
+String targetMonth = "2026-07";
+
+System.out.println("\nMATCHING RECORDS:");
+
+if (body instanceof Map<?, ?>) {
+
+    Map<?, ?> root = (Map<?, ?>) body;
+
+    for (Map.Entry<?, ?> entry : root.entrySet()) {
+
+        Object value = entry.getValue();
+
+        // Check nested JSON objects
+        if (value instanceof Map<?, ?>) {
+
+            Map<?, ?> nested = (Map<?, ?>) value;
+
+            Object timestamp = nested.get("createdTimestamp");
+
+            // Filter by year and month
+            if (timestamp != null &&
+                timestamp.toString().startsWith(targetMonth)) {
+
+                System.out.println("Key: " + entry.getKey());
+
+                // Print all matching fields
+                for (Map.Entry<?, ?> field : nested.entrySet()) {
+
+                    System.out.println(
+                        field.getKey() + " : " + field.getValue()
+                    );
+                }
+
+                System.out.println("-------------------");
+            }
+        }
+    }
+}
