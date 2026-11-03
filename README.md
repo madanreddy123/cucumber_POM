@@ -67,44 +67,74 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.
 
 
 
-// 5. Get root-level response
-Object body = json.get("$");
 
-// 6. Set target month
-String targetMonth = "2026-07";
+ 
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
 
-System.out.println("\nMATCHING RECORDS:");
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-if (body instanceof Map<?, ?>) {
+import java.util.Map;
 
-    Map<?, ?> root = (Map<?, ?>) body;
+public class TimestampFilter {
 
-    for (Map.Entry<?, ?> entry : root.entrySet()) {
+    public static void main(String[] args) throws Exception {
 
-        Object value = entry.getValue();
+        // 1. Call API
+        Response response = RestAssured
+                .given()
+                .when()
+                .get("YOUR_API_ENDPOINT");
 
-        // Check nested JSON objects
-        if (value instanceof Map<?, ?>) {
+        // 2. Print status code
+        System.out.println("Status Code: " + response.getStatusCode());
 
-            Map<?, ?> nested = (Map<?, ?>) value;
+        // 3. Print complete response
+        System.out.println("COMPLETE RESPONSE:");
+        response.prettyPrint();
 
-            Object timestamp = nested.get("createdTimestamp");
+        // 4. Convert JSON response into Java Map
+        ObjectMapper mapper = new ObjectMapper();
 
-            // Filter by year and month
-            if (timestamp != null &&
-                timestamp.toString().startsWith(targetMonth)) {
+        Map<String, Object> root = mapper.readValue(
+                response.asString(),
+                new TypeReference<Map<String, Object>>() {}
+        );
 
-                System.out.println("Key: " + entry.getKey());
+        // 5. Select month and year
+        String targetMonth = "2026-07";
 
-                // Print all matching fields
-                for (Map.Entry<?, ?> field : nested.entrySet()) {
+        System.out.println("\nMATCHING RECORDS:");
 
-                    System.out.println(
-                        field.getKey() + " : " + field.getValue()
-                    );
+        // 6. Iterate through root-level keys
+        for (Map.Entry<String, Object> entry : root.entrySet()) {
+
+            Object value = entry.getValue();
+
+            // 7. Check nested JSON objects
+            if (value instanceof Map<?, ?>) {
+
+                Map<?, ?> nested = (Map<?, ?>) value;
+
+                Object timestamp = nested.get("createdTimestamp");
+
+                // 8. Filter by timestamp
+                if (timestamp != null &&
+                    timestamp.toString().startsWith(targetMonth)) {
+
+                    System.out.println("\nKey: " + entry.getKey());
+
+                    // 9. Print all matching fields
+                    for (Map.Entry<?, ?> field : nested.entrySet()) {
+
+                        System.out.println(
+                                field.getKey() + " : " + field.getValue()
+                        );
+                    }
+
+                    System.out.println("----------------------");
                 }
-
-                System.out.println("-------------------");
             }
         }
     }
