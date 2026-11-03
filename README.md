@@ -64,3 +64,23 @@ radio.checked = true;
 
 
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click();
+
+
+
+// 1. Filter records for July 2026
+List<Map<String, Object>> julyRecords = response.jsonPath().getList(
+    "records.findAll { it.createdTimestamp.startsWith('2026-07') }"
+);
+
+// 2. Print every field separately
+for (Map<String, Object> record : julyRecords) {
+
+    for (Map.Entry<String, Object> entry : record.entrySet()) {
+
+        System.out.println(
+            entry.getKey() + " : " + entry.getValue()
+        );
+    }
+
+    System.out.println("----------------------");
+}
