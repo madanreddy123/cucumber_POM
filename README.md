@@ -67,71 +67,45 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null,
 
 
 
+// Retrieve the credential-tokens secret from Vault
+FSAVaultReadResponse vaultSecretResponse =
+        securityCredentialsClient.retrieveFsaVaultSecret(
+                "ap109996/dev/credential-tokens"
+        );
 
+// Get the list of Vault secret entries
+List<FSAVaultBean> vaultBeans =
+        vaultSecretResponse.getFsaVaultBeanList();
 
+// Extract the username and password
+String username = null;
+String password = null;
 
-package config;
+for (FSAVaultBean bean : vaultBeans) {
 
-import io.restassured.response.Response;
-import io.restassured.http.ContentType;
+    // Replace these getter names with the actual getters
+    // available in your FSAVaultBean class.
+    String key = bean.getKey();
+    String value = bean.getValue();
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+    if ("YOUR_USERNAME_SUBKEY".equals(key)) {
+        username = value;
+    }
 
-import static io.restassured.RestAssured.given;
-
-public class VaultCredentialUtil {
-
-    public static SecurityCredentialsResponse getCredentialFromVault(
-            String vaultUrl,
-            String vaultToken,
-            String mount,
-            String secretPath,
-            String usernameSubKey,
-            String passwordSubKey) {
-
-        String endpoint = "/v1/" + mount
-                + "/data/" + secretPath;
-
-        Response response = given()
-                .baseUri(vaultUrl)
-                .header("X-Vault-Token", vaultToken)
-                .accept(ContentType.JSON)
-                .when()
-                .get(endpoint);
-
-        if (response.statusCode() != 200) {
-            throw new RuntimeException(
-                    "Vault retrieval failed. HTTP status: "
-                    + response.statusCode());
-        }
-
-        JsonObject root = JsonParser.parseString(
-                response.asString()).getAsJsonObject();
-
-        JsonObject secrets = root
-                .getAsJsonObject("data")
-                .getAsJsonObject("data");
-
-        if (!secrets.has(usernameSubKey)
-                || !secrets.has(passwordSubKey)) {
-            throw new RuntimeException(
-                    "Required Vault Subkeys are missing");
-        }
-
-        SecurityCredentialsResponse credentials =
-                new SecurityCredentialsResponse();
-
-        credentials.setUserName(
-                secrets.get(usernameSubKey).getAsString());
-
-        credentials.setUserAccessPhrase(
-                secrets.get(passwordSubKey).getAsString());
-
-        return credentials;
+    if ("YOUR_PASSWORD_SUBKEY".equals(key)) {
+        password = value;
     }
 }
 
+// Check that both credentials were retrieved
+if (username == null || password == null) {
+    throw new IllegalStateException(
+            "Username or password subkey not found in credential-tokens"
+    );
+}
 
+// Set the credentials in the environment
+env.setFsaDbUsername(username);
+env.setFsaDbUserAccessPhrase(password);
 
 
