@@ -67,26 +67,46 @@ document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null,
 
 
 
-String username = null;
-String password = null;
+if (fsaToken.containsKey(env.dbToken)) {
 
-for (FSAVaultBean bean : vaultBeans) {
+    credResponsedbToken = fsaToken.get(env.dbToken);
+    logger.info("Getting db token from cache");
 
-    // Identify the required credential entry
-    if ("db_comm_uses_DIT".equalsIgnoreCase(bean.getToken())) {
+} else {
 
-        username = bean.getUsername();
-        password = bean.getPassword();
+    FSAVaultReadResponse vaultSecretResponse =
+        securityCredentialsClient.retrieveFsaVaultSecret(
+            "ap109996/dev/credential-tokens"
+        );
 
-        break;
+    List<FSAVaultBean> vaultBeans =
+        vaultSecretResponse.getFsaVaultBeanList();
+
+    String username = null;
+    String password = null;
+
+    for (FSAVaultBean bean : vaultBeans) {
+        if ("db_comm_uses_DIT".equalsIgnoreCase(bean.getToken())) {
+            username = bean.getUsername();
+            password = bean.getPassword();
+            break;
+        }
     }
+
+    if (username == null || password == null) {
+        throw new IllegalStateException("DB credentials not found");
+    }
+
+    credResponsedbToken = new SecurityCredentialsResponse();
+    credResponsedbToken.setUserName(username);
+    credResponsedbToken.setUserAccessPhrase(password);
+
+    fsaToken.put(env.dbToken, credResponsedbToken);
+
+    logger.info("Getting db credentials from Vault");
 }
 
-if (username == null || password == null) {
-    throw new IllegalStateException(
-        "DB username or password not found in credential-tokens"
-    );
-}
-
-env.setFsaDbUsername(username);
-env.setFsaDbUserAccessPhrase(password);
+env.setFsaDbUsername(credResponsedbToken.getUserName());
+env.setFsaDbUserAccessPhrase(
+    credResponsedbToken.getUserAccessPhrase()
+);
