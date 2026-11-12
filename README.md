@@ -66,10 +66,72 @@ radio.checked = true;
 document.evaluate("//a[text() = 'CERTIFICATIONS']", document, null, 
 
 
-String str = "[-1,39,1790,-512]";
 
-int[] numbers = Arrays.stream(str.substring(1, str.length() - 1).split(","))
-                      .mapToInt(Integer::parseInt)
-                      .toArray();
 
-System.out.println(Arrays.toString(numbers));
+
+
+package config;
+
+import io.restassured.response.Response;
+import io.restassured.http.ContentType;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import static io.restassured.RestAssured.given;
+
+public class VaultCredentialUtil {
+
+    public static SecurityCredentialsResponse getCredentialFromVault(
+            String vaultUrl,
+            String vaultToken,
+            String mount,
+            String secretPath,
+            String usernameSubKey,
+            String passwordSubKey) {
+
+        String endpoint = "/v1/" + mount
+                + "/data/" + secretPath;
+
+        Response response = given()
+                .baseUri(vaultUrl)
+                .header("X-Vault-Token", vaultToken)
+                .accept(ContentType.JSON)
+                .when()
+                .get(endpoint);
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException(
+                    "Vault retrieval failed. HTTP status: "
+                    + response.statusCode());
+        }
+
+        JsonObject root = JsonParser.parseString(
+                response.asString()).getAsJsonObject();
+
+        JsonObject secrets = root
+                .getAsJsonObject("data")
+                .getAsJsonObject("data");
+
+        if (!secrets.has(usernameSubKey)
+                || !secrets.has(passwordSubKey)) {
+            throw new RuntimeException(
+                    "Required Vault Subkeys are missing");
+        }
+
+        SecurityCredentialsResponse credentials =
+                new SecurityCredentialsResponse();
+
+        credentials.setUserName(
+                secrets.get(usernameSubKey).getAsString());
+
+        credentials.setUserAccessPhrase(
+                secrets.get(passwordSubKey).getAsString());
+
+        return credentials;
+    }
+}
+
+
+
+
