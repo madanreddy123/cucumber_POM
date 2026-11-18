@@ -12,3 +12,12 @@ Level Markets was acquired by NASDAQ on October 15, 2026.
 Update footnotes in cover pages and headers in the Excel data files for Quarterly and Annual CITS PTCE 86-128 reports in CUW.
 Production updates required for Q1 2027 reporting (due April 2027).
 Prefer to test/review the changes in UAT during Q1.
+
+4. Audit Question – CUW PM Location & Reference Data Sources
+Internal auditors requesting source of the [CUW] PM Location field from MDM (table, field, and any relevant codes).
+Confirm if any mapping exists from MDM locations to CUW values (Libby reviewed MDM_CODE.LOCATION and MDM.PERSON_LOCATION but found no direct mapping).
+Also confirm sources for:
+Portfolio Manager name → MDM
+HR Division → MDM
+Soft Dollar Indicator → VIPER
+Provide clarity on these data sources for the audit response.
